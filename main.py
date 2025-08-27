@@ -18,7 +18,7 @@ def main():
     dtype, multidevice, backward_device = setup_gpu(params)
     cnn, layerList = loadmodel(params.model_file, params.pooling, params.gpu, params.disable_check)
     content_image = preprocess(params.content_image, params.image_size).type(dtype)
-    style_images_original, style_images_preprocessed, init_image, blend_weights = prepare_style_inputs(params, content_image, dtype=dtype)
+    style_images_preprocessed, init_image, blend_weights = prepare_style_inputs(params, content_image, dtype=dtype)
 
     net, content_losses, style_losses, tv_losses = build_style_transfer_network(cnn, layerList,params, dtype)
 

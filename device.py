@@ -3,11 +3,11 @@ import torch
 
 def setup_gpu(params):
     """
-    根据 params.gpu 和 params.backend 设置运行设备
-    返回:
-        dtype: 默认张量类型 (CPU/GPU)
-        multidevice: 是否为多设备
-        backward_device: 反向传播所在设备
+    Set the runtime device according to params.gpu and params.backend.
+    Returns:
+        dtype: default tensor type (CPU/GPU)
+        multidevice: whether multiple devices are used
+        backward_device: device for backpropagation
     """
 
     def setup_cuda():
@@ -28,7 +28,7 @@ def setup_gpu(params):
 
     multidevice = False
     if "," in str(params.gpu):
-        # 多设备模式
+        # Multiple devices mode
         devices = params.gpu.split(',')
         multidevice = True
 
@@ -41,11 +41,11 @@ def setup_gpu(params):
         dtype = torch.FloatTensor
 
     elif "c" not in str(params.gpu).lower():
-        # 单 GPU 模式
+        # Single device mode
         setup_cuda()
         dtype, backward_device = torch.cuda.FloatTensor, "cuda:" + str(params.gpu)
     else:
-        # CPU 模式
+        # CPU mode
         setup_cpu()
         dtype, backward_device = torch.FloatTensor, "cpu"
 
@@ -53,9 +53,6 @@ def setup_gpu(params):
 
 
 def setup_multi_device(net, params, ModelParallel):
-    """
-    构建多设备网络
-    """
     assert len(params.gpu.split(',')) - 1 == len(params.multidevice_strategy.split(',')), \
         "The number of -multidevice_strategy layer indices minus 1, must be equal to the number of -gpu devices."
     new_net = ModelParallel(net, params.gpu, params.multidevice_strategy)

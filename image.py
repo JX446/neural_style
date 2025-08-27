@@ -5,11 +5,11 @@ import torchvision.transforms as transforms
 from PIL import Image
 
 
-# 预处理图像：读入 → resize → 转tensor → RGB转BGR → 减去均值
+# Preprocess an image: load → resize → convert to tensor → RGB to BGR → subtract mean
 def preprocess(image_name, image_size):
     image = Image.open(image_name).convert('RGB')
 
-    # 如果 image_size 不是 tuple，就按比例缩放
+    # If image_size is not a tuple, scale proportionally
     if type(image_size) is not tuple:
         image_size = tuple([
             int((float(image_size) / max(image.size)) * x) 
@@ -27,7 +27,7 @@ def preprocess(image_name, image_size):
         transforms.Lambda(lambda x: x[torch.LongTensor([2,1,0])])
     ])
 
-    # 减去均值（和 VGG 训练时一致）
+    # Subtract mean (same as VGG training)
     Normalize = transforms.Compose([
         transforms.Normalize(mean=[103.939, 116.779, 123.68], std=[1,1,1])
     ])
@@ -36,7 +36,7 @@ def preprocess(image_name, image_size):
     return tensor
 
 
-# 反处理：把 tensor 转回可显示的 PIL 图像
+# Deprocess: convert tensor back to displayable PIL image
 def deprocess(output_tensor):
     Normalize = transforms.Compose([
         transforms.Normalize(mean=[-103.939, -116.779, -123.68], std=[1,1,1])
@@ -53,15 +53,15 @@ def deprocess(output_tensor):
     return image
 
 
-# 保持原图颜色的风格迁移后处理
+# Postprocess to preserve original colors in style transfer
 def original_colors(content, generated):
     content_channels = list(content.convert('YCbCr').split())
     generated_channels = list(generated.convert('YCbCr').split())
-    content_channels[0] = generated_channels[0]  # 替换 Y 通道
+    content_channels[0] = generated_channels[0]  # replace Y channel
     return Image.merge('YCbCr', content_channels).convert('RGB')
 
 
-# 批量加载 style 图像（支持文件夹和多个文件）
+# Load multiple style images (supports directories and multiple files)
 def load_style_images(style_image_input, image_size, style_scale=1.0):
     style_image_list, ext = [], [".jpg", ".jpeg", ".png", ".tiff"]
 
@@ -83,6 +83,7 @@ def load_style_images(style_image_input, image_size, style_scale=1.0):
 
     return style_images, style_image_list
 
+
 def prepare_style_inputs(params, content_image=None, dtype=torch.FloatTensor):
     """
     Prepare style images, initial image (optional), and style blending weights for style transfer.
@@ -93,10 +94,9 @@ def prepare_style_inputs(params, content_image=None, dtype=torch.FloatTensor):
         dtype: Torch Tensor type (FloatTensor or CUDA tensor).
 
     Returns:
-        style_images: List of preprocessed style image tensors.
+        style_images_preprocessed: List of preprocessed style image tensors.
         init_image: Preprocessed initial image tensor (or None).
         style_blend_weights: Normalized list of blending weights.
-        style_image_list: List of style image file paths.
     """
     # 1. Collect style image paths
     style_image_input = params.style_image.split(',')
@@ -138,4 +138,4 @@ def prepare_style_inputs(params, content_image=None, dtype=torch.FloatTensor):
     weight_sum = sum(style_blend_weights)
     style_blend_weights = [w / weight_sum for w in style_blend_weights]
     
-    return style_images_original, style_images_preprocessed, init_image, style_blend_weights
+    return style_images_preprocessed, init_image, style_blend_weights

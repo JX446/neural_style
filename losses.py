@@ -2,9 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-# -----------------------------------------
 # Scale gradients in the backward pass
-# -----------------------------------------
 class ScaleGradients(torch.autograd.Function):
     @staticmethod
     def forward(ctx, input_tensor, strength):
@@ -16,9 +14,7 @@ class ScaleGradients(torch.autograd.Function):
         grad_input = grad_output / (torch.norm(grad_output, keepdim=True) + 1e-8)
         return grad_input * ctx.strength * ctx.strength, None
 
-# -----------------------------------------
 # Gram Matrix calculation
-# -----------------------------------------
 class GramMatrix(nn.Module):
     def forward(self, input):
         B, C, H, W = input.size()
@@ -28,9 +24,7 @@ class GramMatrix(nn.Module):
         G = torch.bmm(features, features.transpose(1, 2))
         return G / (C * H * W)
 
-# -----------------------------------------
 # Content Loss
-# -----------------------------------------
 class ContentLoss(nn.Module):
     def __init__(self, strength=1.0, normalize=False):
         super().__init__()
@@ -51,9 +45,7 @@ class ContentLoss(nn.Module):
             self.loss = loss * self.strength
         return input
 
-# -----------------------------------------
 # Style Loss
-# -----------------------------------------
 class StyleLoss(nn.Module):
     def __init__(self, strength=1.0, normalize=False):
         super().__init__()
@@ -82,9 +74,7 @@ class StyleLoss(nn.Module):
             self.loss = loss * self.strength
         return input
 
-# -----------------------------------------
 # Total Variation Loss
-# -----------------------------------------
 class TVLoss(nn.Module):
     def __init__(self, strength=1e-3):
         super().__init__()

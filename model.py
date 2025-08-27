@@ -91,6 +91,7 @@ nin_dict = {
 'D': ['drop'],
 }
 
+# print the structure of loaded model
 def print_loadmodel(cnn, layerList):
     c = 0
     for l in list(cnn):

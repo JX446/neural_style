@@ -3,10 +3,10 @@ import torch.optim as optim
 
 def setup_optimizer(img, params):
     """
-    根据参数设置优化器
-    返回:
-        optimizer: torch.optim 优化器对象
-        loopVal: 外层循环次数控制变量
+    Set up the optimizer according to the given parameters.
+    Returns:
+        optimizer: torch.optim optimizer object
+        loopVal: control variable for the outer loop iterations
     """
     if params.optimizer == 'lbfgs':
         print("Running optimization with L-BFGS")
