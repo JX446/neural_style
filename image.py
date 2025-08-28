@@ -139,3 +139,20 @@ def prepare_style_inputs(params, content_image=None, dtype=torch.FloatTensor):
     style_blend_weights = [w / weight_sum for w in style_blend_weights]
     
     return style_images_preprocessed, init_image, style_blend_weights
+
+def save_output(params, t, img, content_image):
+    should_save = params.save_iter > 0 and t % params.save_iter == 0
+    should_save = should_save or t == params.num_iterations
+    if should_save:
+        output_filename, file_extension = os.path.splitext(params.output_image)
+        if t == params.num_iterations:
+            filename = output_filename + str(file_extension)
+        else:
+            filename = str(output_filename) + "_" + str(t) + str(file_extension)
+        disp = deprocess(img.clone())
+
+        # Maybe perform postprocessing for color-independent style transfer
+        if params.original_colors == 1:
+            disp = original_colors(deprocess(content_image.clone()), disp)
+
+        disp.save(str(filename))
